@@ -24,7 +24,7 @@ const stats = [
           </div>
 
           <h1 class="hero-title">
-            29 Workouts.<br />
+            30 Workouts.<br />
             One clear plan.<br />
             <span class="text-gradient">Better every week.</span>
           </h1>
