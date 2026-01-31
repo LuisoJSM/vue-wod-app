@@ -1,11 +1,33 @@
 <script setup>
-import { workoutProgram } from '../../utils'
+import { ref, computed } from 'vue'
+import Portal from '../Portal.vue';
+import { workoutProgram, exerciseDescriptions } from '../../utils'
 
 const selectedWorkout = 4
 const { workout, warmup } = workoutProgram[selectedWorkout]
+// let selectedExercise = null
+let selectedExercise = ref(null)
+const exerciseDescription = computed(() => exerciseDescriptions[selectedExercise.value]) 
+
+
+function handleCloseModal() {
+  selectedExercise.value = null
+}
+
 </script>
 
 <template>
+  <Portal :handleCloseModal="handleCloseModal" v-if="selectedExercise">
+    <div class="excersise-description">
+      <h4>{{ selectedExercise }}</h4>
+      <div>
+        <small>Description</small>
+      <p>{{ exerciseDescription }}</p>
+      </div>
+      <button @click="handleCloseModal">Close <i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </Portal>
+
   <section id="workout-card">
     <div class="plan-card">
       <div class="card-header">
@@ -29,7 +51,10 @@ const { workout, warmup } = workoutProgram[selectedWorkout]
       <div class="exercise-row" v-for="(w, wIdx) in warmup" :key="'warmup-' + wIdx">
         <div class="exercise-name">
           <p>{{ w.name }}</p>
-          <button class="help-btn"><i class="fa-regular fa-circle-question"></i></button>
+          <button @click="() => {
+            
+            selectedExercise = w.name
+          }" class="help-btn"><i class="fa-regular fa-circle-question"></i></button>
         </div>
 
         <p class="stat-pill sets-pill">{{ w.sets }}</p>
@@ -54,7 +79,10 @@ const { workout, warmup } = workoutProgram[selectedWorkout]
       <div class="exercise-row" v-for="(w, wIdx) in workout" :key="'workout-' + wIdx">
         <div class="exercise-name">
           <p>{{ w.name }}</p>
-          <button class="help-btn"><i class="fa-regular fa-circle-question"></i></button>
+          <button  @click="() => {
+            
+            selectedExercise = w.name
+          }" class="help-btn"><i class="fa-regular fa-circle-question"></i></button>
         </div>
 
         <p class="stat-pill sets-pill">{{ w.sets }}</p>
@@ -276,14 +304,11 @@ const { workout, warmup } = workoutProgram[selectedWorkout]
   height: 32px;
   padding: 0;
   border-radius: 10px;
-
   border: 1px solid var(--border-tertiary);
   background: color-mix(in srgb, var(--background-primary), transparent 86%);
   color: var(--color-tertiary);
-
   display: grid;
   place-items: center;
-
   cursor: pointer;
   box-shadow: none;
   transition: transform 140ms ease, color 140ms ease, border-color 140ms ease;
@@ -422,4 +447,72 @@ const { workout, warmup } = workoutProgram[selectedWorkout]
     font-size: 1rem;
   }
 }
+
+/* =========================
+   EXERCISE DESCRIPTION (PORTAL)
+   ========================= */
+
+.excersise-description {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.excersise-description h4 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  color: var(--color-primary);
+  text-transform: capitalize;
+}
+
+.excersise-description small {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-tertiary);
+  margin-bottom: 0.4rem;
+}
+
+.excersise-description p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--color-primary);
+  opacity: 0.92;
+}
+
+/* Botón Close */
+.excersise-description button {
+  margin-top: 1.5rem;
+  align-self: flex-end;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  height: 42px;
+  padding: 0 1rem;
+
+  border-radius: 12px;
+  font-weight: 900;
+
+  border: 1px solid var(--border-secondary);
+  background: color-mix(in srgb, var(--background-primary), transparent 88%);
+  color: var(--color-primary);
+
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.excersise-description button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+  border-color: var(--border-primary);
+}
+
+
 </style>
