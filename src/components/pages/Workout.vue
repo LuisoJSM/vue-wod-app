@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import Portal from '../Portal.vue';
 import { workoutProgram, exerciseDescriptions } from '../../utils'
 
-const selectedWorkout = 4
+const selectedWorkout = 0
 const { workout, warmup } = workoutProgram[selectedWorkout]
 // let selectedExercise = null
 let selectedExercise = ref(null)
