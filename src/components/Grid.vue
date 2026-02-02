@@ -1,12 +1,17 @@
 <script setup>
 import { workoutProgram } from '../utils';
 
+
+const props = defineProps({
+  handleSelectedWorkout: Function
+})
+
 const workoutTypes = ["Push", "Pull", "Leg"];
 </script>
 
 <template>
     <section id="grid">
-        <button 
+        <button disabled="" @click="() => handleSelectedWorkout(workoutIdx)"
             v-for="(workout, workoutIdx) in Object.keys(workoutProgram)" 
             :key="workoutIdx"
             class="workout-card"
@@ -30,7 +35,7 @@ const workoutTypes = ["Push", "Pull", "Leg"];
 #grid {
     width: 100%;
     display: grid;
-    gap: 1.5rem; /* Un poco más de espacio entre tarjetas */
+    gap: 1.5rem;
     grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
@@ -47,10 +52,10 @@ const workoutTypes = ["Push", "Pull", "Leg"];
     width: 100%;
     text-align: left;
     padding: 1.25rem;
-    border-radius: 16px; /* Bordes más redondeados */
-    border: 1px solid var(--border-tertiary, #e5e7eb); /* Fallback color por si no existe la variable */
+    border-radius: 16px;
+    border: 1px solid var(--border-tertiary, #e5e7eb);
     
-    /* Gradiente sutil */
+
     background: linear-gradient(145deg, var(--background-secondary, #fff), var(--background-muted, #f9fafb));
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     
@@ -59,19 +64,17 @@ const workoutTypes = ["Push", "Pull", "Leg"];
     flex-direction: column;
     gap: 1rem;
     overflow: hidden;
-
-    /* Transiciones suaves para todo */
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Efecto Hover mejorado */
+
 .workout-card:hover {
     transform: translateY(-4px);
     border-color: var(--color-primary, #3b82f6);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Header interno: Día e Icono */
+
 .card-header {
     display: flex;
     align-items: center;
@@ -87,7 +90,7 @@ const workoutTypes = ["Push", "Pull", "Leg"];
     opacity: 0.8;
 }
 
-/* Estilo de los iconos */
+
 .icon-wrapper {
     display: flex;
     align-items: center;
@@ -95,7 +98,7 @@ const workoutTypes = ["Push", "Pull", "Leg"];
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: var(--background-muted, #f3f4f6); /* Círculo sutil detrás del icono */
+    background-color: var(--background-muted, #f3f4f6);
     color: var(--color-primary, #3b82f6);
     font-size: 1.1rem;
     transition: background-color 0.2s ease, transform 0.2s ease;
@@ -103,15 +106,40 @@ const workoutTypes = ["Push", "Pull", "Leg"];
 
 .workout-card:hover .icon-wrapper {
     background-color: var(--color-primary, #3b82f6);
-    color: white; /* Invierte colores al hacer hover */
-    transform: rotate(15deg); /* Pequeña animación divertida */
+    color: white;
+    transform: rotate(15deg);
 }
 
 .workout-title {
     margin: 0;
-    font-size: 1.5rem; /* Texto más grande */
+    font-size: 1.5rem;
     font-weight: 800;
     color: var(--color-heading, #111827);
     letter-spacing: -0.5px;
 }
+
+
+.workout-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.6);
+  box-shadow: none;
+  transform: none;
+  border-color: var(--border-tertiary);
+}
+
+
+.workout-card:disabled:hover {
+  transform: none;
+  border-color: var(--border-tertiary);
+  box-shadow: none;
+}
+
+
+.workout-card:disabled .icon-wrapper {
+  background-color: var(--background-muted);
+  color: var(--color-tertiary);
+  transform: none;
+}
+
 </style>

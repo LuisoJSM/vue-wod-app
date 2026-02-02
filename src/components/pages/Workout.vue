@@ -3,7 +3,15 @@ import { ref, computed } from 'vue'
 import Portal from '../Portal.vue';
 import { workoutProgram, exerciseDescriptions } from '../../utils'
 
-const selectedWorkout = 0
+
+
+const { data, selectedWorkout } = defineProps({
+  data: Object,
+  selectedWorkout: Number,
+  handleSaveWorkout: Function,
+  isWorkoutComplete: Boolean
+})
+
 const { workout, warmup } = workoutProgram[selectedWorkout]
 // let selectedExercise = null
 let selectedExercise = ref(null)
@@ -31,7 +39,7 @@ function handleCloseModal() {
   <section id="workout-card">
     <div class="plan-card">
       <div class="card-header">
-        <span class="day-badge">Day {{ selectedWorkout < 9 ? '0' + selectedWorkout : selectedWorkout }}</span>
+        <span class="day-badge">Day {{ selectedWorkout < 9 ? '0' + (selectedWorkout + 1) : (selectedWorkout + 1) }}</span>
         <div class="icon-bg">
           <i class="fa-solid fa-dumbbell"></i>
         </div>
@@ -89,18 +97,18 @@ function handleCloseModal() {
         <p class="stat-pill reps-pill">{{ w.reps }}</p>
 
         <div class="input-wrapper">
-          <input class="weight-input" placeholder="0" type="text" />
+          <input v-model="data[selectedWorkout][w.name]" class="weight-input" placeholder="0" type="text" />
           <span class="unit">kg</span>
         </div>
       </div>
     </div>
     <div class="actions-card">
-  <button class="btn-secondary">
+  <button @click="handleSaveWorkout" class="btn-secondary">
     <i class="fa-solid fa-floppy-disk"></i>
     <span>Save and exit</span>
   </button>
 
-  <button class="btn-primary">
+  <button :disabled="!isWorkoutComplete" @click="handleSaveWorkout" class="btn-primary">
     <span>Complete</span>
     <i class="fa-solid fa-check"></i>
   </button>

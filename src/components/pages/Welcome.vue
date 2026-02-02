@@ -1,4 +1,9 @@
 <script setup>
+
+defineProps({
+  handleChangeDisplay: Function
+})
+
 // Data
 const highlights = [
   { title: "Strength + Skill", desc: "Weightlifting & calisthenics foundations.", icon: "💪" },
@@ -35,7 +40,7 @@ const stats = [
           </p>
 
           <div class="hero-actions">
-            <button class="btn btn--primary" type="button">
+            <button @click="() => handleChangeDisplay(2)" class="btn btn--primary" type="button">
               Start Now
               <span class="btn-glow" aria-hidden="true"></span>
             </button>
