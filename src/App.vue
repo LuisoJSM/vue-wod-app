@@ -24,7 +24,7 @@ const data = ref(defaultData) // {1...30: {excercise_name:'_',....}}
 const selectedWorkout = ref(-1)
 
 const isWorkoutCompleted = computed(() => {
-  const currWorkout = data.value?.[selectedWorkout].value
+  const currWorkout = data.value?.[selectedWorkout.value]
   if (!currWorkout) { return false }
 
   const isCompleteCheck = Object.values(currWorkout).every(ex => !!ex)

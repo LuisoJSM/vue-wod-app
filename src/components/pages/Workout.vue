@@ -3,13 +3,13 @@ import { ref, computed } from 'vue'
 import Portal from '../Portal.vue';
 import { workoutProgram, exerciseDescriptions } from '../../utils'
 
-
+const workoutType = ['Push', 'Pull', 'Legs']
 
 const { data, selectedWorkout } = defineProps({
   data: Object,
   selectedWorkout: Number,
   handleSaveWorkout: Function,
-  isWorkoutComplete: Boolean
+  isWorkoutCompleted: Boolean
 })
 
 const { workout, warmup } = workoutProgram[selectedWorkout]
@@ -44,7 +44,7 @@ function handleCloseModal() {
           <i class="fa-solid fa-dumbbell"></i>
         </div>
       </div>
-      <h2 class="workout-title">{{ 'Push' }} Workout</h2>
+      <h2 class="workout-title">{{ workoutType[selectedWorkout % 3] }} Workout</h2>
     </div>
 
     <div class="exercises-container">
@@ -108,7 +108,7 @@ function handleCloseModal() {
     <span>Save and exit</span>
   </button>
 
-  <button :disabled="!isWorkoutComplete" @click="handleSaveWorkout" class="btn-primary">
+  <button :disabled="!isWorkoutCompleted" @click="handleSaveWorkout" class="btn-primary">
     <span>Complete</span>
     <i class="fa-solid fa-check"></i>
   </button>
@@ -520,6 +520,11 @@ function handleCloseModal() {
   transform: translateY(-1px);
   box-shadow: var(--shadow-light);
   border-color: var(--border-primary);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 
