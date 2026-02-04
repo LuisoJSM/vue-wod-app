@@ -1,531 +1,732 @@
 <script setup>
-import { ref, computed } from 'vue'
-import Portal from '../Portal.vue';
-import { workoutProgram, exerciseDescriptions } from '../../utils'
+import { ref, computed } from "vue";
+import Portal from "../Portal.vue";
+import { workoutProgram, exerciseDescriptions } from "../../utils";
 
-const workoutType = ['Push', 'Pull', 'Legs']
-
-const { data, selectedWorkout } = defineProps({
+const props = defineProps({
   data: Object,
   selectedWorkout: Number,
   handleSaveWorkout: Function,
-  isWorkoutCompleted: Boolean
-})
+  isWorkoutCompleted: Boolean,
+});
 
-const { workout, warmup } = workoutProgram[selectedWorkout]
-// let selectedExercise = null
-let selectedExercise = ref(null)
-const exerciseDescription = computed(() => exerciseDescriptions[selectedExercise.value]) 
+const workout = computed(() => workoutProgram?.[props.selectedWorkout] || null);
+const selectedExercise = ref(null);
 
+const exerciseDescription = computed(() => {
+  const key = selectedExercise.value;
+  return key ? exerciseDescriptions?.[key] || "No description available yet." : "";
+});
 
-function handleCloseModal() {
-  selectedExercise.value = null
+function openExercise(name) {
+  selectedExercise.value = name;
 }
 
+function handleCloseModal() {
+  selectedExercise.value = null;
+}
+
+function keyFor(sectionId, movementId) {
+  return `${sectionId}__${movementId}`;
+}
+
+// Pequeña ayuda para formatear tipos como "FOR_TIME"
+function formatType(t) {
+  return t ? t.replace(/_/g, " ") : "Workout";
+}
 </script>
 
 <template>
   <Portal :handleCloseModal="handleCloseModal" v-if="selectedExercise">
-    <div class="excersise-description">
-      <h4>{{ selectedExercise }}</h4>
-      <div>
-        <small>Description</small>
-      <p>{{ exerciseDescription }}</p>
+    <div class="exercise-modal">
+      <div class="modal-header">
+        <h4>{{ selectedExercise }}</h4>
+        <button class="btn-icon-close" @click="handleCloseModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <button @click="handleCloseModal">Close <i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-body">
+        <span class="modal-label">COACH CUE</span>
+        <p>{{ exerciseDescription }}</p>
+      </div>
+      <button class="btn btn--primary btn--full" @click="handleCloseModal">Got it</button>
     </div>
   </Portal>
 
-  <section id="workout-card">
-    <div class="plan-card">
-      <div class="card-header">
-        <span class="day-badge">Day {{ selectedWorkout < 9 ? '0' + (selectedWorkout + 1) : (selectedWorkout + 1) }}</span>
-        <div class="icon-bg">
-          <i class="fa-solid fa-dumbbell"></i>
-        </div>
+  <section id="workout-view" v-if="workout">
+
+    <header class="header-section">
+      <div class="badge-container">
+        <span class="badge">Session {{ props.selectedWorkout + 1 }}</span>
       </div>
-      <h2 class="workout-title">{{ workoutType[selectedWorkout % 3] }} Workout</h2>
+      <h1 class="hero-title">{{ workout.title }}</h1>
+      <p class="hero-subtitle" v-if="workout.coachTip">
+        <i class="fa-solid fa-quote-left icon-quote"></i> {{ workout.coachTip }}
+      </p>
+    </header>
+
+    <div class="bento-stack">
+
+      <article class="bento-card" v-if="workout.warmup?.length">
+        <div class="card-header">
+          <span class="tag tag--green">Warm-up</span>
+          <h3 class="card-title-text">Mobility & Prep</h3>
+        </div>
+
+        <div class="rows-container">
+          <div class="workout-row" v-for="(m, idx) in workout.warmup" :key="'wu-' + idx">
+            <div class="row-content">
+              <div class="row-header">
+                <span class="row-name">{{ m.name }}</span>
+                <button class="btn-info" @click="openExercise(m.name)">
+                  <i class="fa-regular fa-circle-question"></i>
+                </button>
+              </div>
+              <div class="row-meta">
+                <span class="meta-pill">{{ m.sets }} sets</span>
+                <span class="meta-pill">{{ m.reps }} reps</span>
+              </div>
+            </div>
+            <div class="check-circle"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="bento-card" v-if="workout.strength?.length">
+        <div class="card-header">
+          <span class="tag tag--blue">Strength</span>
+          <h3 class="card-title-text">Primary Lifts</h3>
+        </div>
+
+        <div class="rows-container">
+          <div class="grid-headers desktop-only">
+            <span>MOVEMENT</span>
+            <div class="headers-right">
+              <span>SETS</span>
+              <span>REPS</span>
+              <span>LOAD (KG)</span>
+            </div>
+          </div>
+
+          <div class="workout-row strength-row" v-for="(m, idx) in workout.strength" :key="'st-' + idx">
+            <div class="row-content">
+              <div class="row-header">
+                <span class="row-name">{{ m.name }}</span>
+                <button class="btn-info" @click="openExercise(m.name)">
+                  <i class="fa-regular fa-circle-question"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="strength-inputs">
+              <div class="stat-group">
+                <span class="stat-val">{{ m.sets }}</span>
+                <span class="stat-lbl mobile-only">Sets</span>
+              </div>
+              <div class="stat-group">
+                <span class="stat-val">{{ m.reps }}</span>
+                <span class="stat-lbl mobile-only">Reps</span>
+              </div>
+
+              <div class="input-container">
+                <input type="text" inputmode="decimal" placeholder="-"
+                  v-model="props.data[props.selectedWorkout][keyFor('strength', m.id)]" />
+                <span class="unit">kg</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="bento-card" v-if="workout.training">
+        <div class="card-header">
+          <span class="tag tag--orange">Metcon</span>
+          <div class="header-right">
+            <h3 class="card-title-text">{{ formatType(workout.training.type) }}</h3>
+            <span class="cap-badge" v-if="workout.training.timeCapMin">
+              {{ workout.training.timeCapMin }}' Cap
+            </span>
+          </div>
+        </div>
+
+        <div class="rows-container">
+          <div class="workout-row" v-for="(mv, idx) in workout.training.movements" :key="'tr-' + idx">
+            <div class="metcon-content">
+              <span class="reps-big">{{ mv.reps }}</span>
+              <span class="row-name">{{ mv.name }}</span>
+            </div>
+            <button class="btn-info" @click="openExercise(mv.name)">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+          </div>
+
+          <div class="note-box" v-if="workout.training.note">
+            <i class="fa-solid fa-circle-info"></i> {{ workout.training.note }}
+          </div>
+        </div>
+      </article>
+
+      <article class="bento-card">
+        <h3 class="card-title-text" style="margin-bottom: 1rem;">Session Notes</h3>
+        <textarea class="notes-area" placeholder="How did it feel? Log RPE or modifications..."
+          v-model="props.data[props.selectedWorkout].observaciones" rows="3"></textarea>
+      </article>
+
     </div>
 
-    <div class="exercises-container">
-      <!-- WARMUP -->
-      <h4 class="grid-header-main span-full">Warmup</h4>
+    <div class="actions-row">
+      <button class="btn btn--ghost" @click="handleSaveWorkout">
+        Save Progress
+      </button>
 
-      <h6 class="grid-header align-left">Exercise</h6>
-      <h6 class="grid-header">Sets</h6>
-      <h6 class="grid-header">Reps</h6>
-      <h6 class="grid-header">Weight</h6>
-
-      <div class="exercise-row" v-for="(w, wIdx) in warmup" :key="'warmup-' + wIdx">
-        <div class="exercise-name">
-          <p>{{ w.name }}</p>
-          <button @click="() => {
-            
-            selectedExercise = w.name
-          }" class="help-btn"><i class="fa-regular fa-circle-question"></i></button>
-        </div>
-
-        <p class="stat-pill sets-pill">{{ w.sets }}</p>
-        <p class="stat-pill reps-pill">{{ w.reps }}</p>
-
-        <div class="input-wrapper">
-          <input class="weight-input" placeholder="0" type="text" />
-          <span class="unit">kg</span>
-        </div>
-      </div>
-
-      <div class="divider span-full"></div>
-
-      <!-- MAIN WORKOUT -->
-      <h4 class="grid-header-main span-full">Main Workout</h4>
-
-      <h6 class="grid-header align-left">Exercise</h6>
-      <h6 class="grid-header">Sets</h6>
-      <h6 class="grid-header">Reps</h6>
-      <h6 class="grid-header">Weight</h6>
-
-      <div class="exercise-row" v-for="(w, wIdx) in workout" :key="'workout-' + wIdx">
-        <div class="exercise-name">
-          <p>{{ w.name }}</p>
-          <button  @click="() => {
-            
-            selectedExercise = w.name
-          }" class="help-btn"><i class="fa-regular fa-circle-question"></i></button>
-        </div>
-
-        <p class="stat-pill sets-pill">{{ w.sets }}</p>
-        <p class="stat-pill reps-pill">{{ w.reps }}</p>
-
-        <div class="input-wrapper">
-          <input v-model="data[selectedWorkout][w.name]" class="weight-input" placeholder="0" type="text" />
-          <span class="unit">kg</span>
-        </div>
-      </div>
+      <button class="btn btn--primary" :disabled="!isWorkoutCompleted" @click="handleSaveWorkout">
+        Complete Session
+        <span class="btn-glow"></span>
+      </button>
     </div>
-    <div class="actions-card">
-  <button @click="handleSaveWorkout" class="btn-secondary">
-    <i class="fa-solid fa-floppy-disk"></i>
-    <span>Save and exit</span>
-  </button>
-
-  <button :disabled="!isWorkoutCompleted" @click="handleSaveWorkout" class="btn-primary">
-    <span>Complete</span>
-    <i class="fa-solid fa-check"></i>
-  </button>
-</div>
 
   </section>
 </template>
 
 <style scoped>
-#workout-card {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  max-width: 820px;
+#workout-view {
+  --p-color: var(--color-primary);
+  --s-color: var(--color-secondary);
+  --accent: var(--color-link);
+  --bg-card: var(--background-secondary);
+  --border: var(--border-primary);
+  --card-shadow: var(--shadow-light);
+
+  --bg-input: #f8fafc;
+  --border-radius: 1rem;
+
+  font-family: inherit;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 1rem;
+  padding-bottom: 5rem;
+  color: var(--p-color);
 }
 
-/* =========================
-   HEADER
-   ========================= */
-.plan-card {
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-  color: var(--background-primary);
-  padding: 1.4rem;
-  border-radius: 16px;
-  box-shadow: var(--shadow-light);
-  border: 1px solid color-mix(in srgb, var(--border-highlight), transparent 35%);
+/* --- HEADER --- */
+.header-section {
+  margin-bottom: 2rem;
+  text-align: center;
+}
 
+.badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.8rem;
+}
+
+.badge {
+  background: var(--background-accent, #eff6ff);
+  color: var(--color-accent, #2563eb);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--border-highlight);
+}
+
+.hero-title {
+  font-size: 2.2rem;
+  font-weight: 850;
+  color: var(--p-color);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  color: var(--s-color);
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+  font-style: italic;
+}
+
+.icon-quote {
+  color: var(--color-tertiary);
+  margin-right: 4px;
+}
+
+/* --- BENTO STACK --- */
+.bento-stack {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 1.5rem;
+}
+
+.bento-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
 }
 
 .card-header {
   display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.card-title-text {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--p-color);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.cap-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ea580c;
+  background: #fff7ed;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* TAGS */
+.tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.tag--green {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tag--blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tag--orange {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+
+.rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.workout-row {
+  display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #ffffff;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-tertiary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.2s;
 }
 
-.day-badge {
-  background: color-mix(in srgb, var(--background-primary), transparent 80%);
-  border: 1px solid color-mix(in srgb, var(--border-primary), transparent 30%);
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 800;
-  backdrop-filter: blur(6px);
+.workout-row:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
 }
 
-.icon-bg {
-  width: 42px;
-  height: 42px;
-  background: color-mix(in srgb, var(--background-primary), transparent 82%);
-  border: 1px solid color-mix(in srgb, var(--border-primary), transparent 30%);
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
+.row-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
-.workout-title {
-  margin: 0;
-  font-size: 1.9rem;
-  font-weight: 900;
-  letter-spacing: -0.4px;
-}
-
-/* =========================
-   EXERCISES GRID CARD
-   ========================= */
-.exercises-container {
-  background: linear-gradient(180deg, var(--background-secondary), var(--background-muted));
-  border: 1px solid var(--border-primary);
-  border-radius: 16px;
-  box-shadow: var(--shadow-light);
-  padding: 1rem;
-
-  display: grid;
-  grid-template-columns: 3fr 0.6fr 0.6fr 1.2fr;
-  gap: 0.7rem 0.9rem;
-  align-items: center;
-}
-
-.span-full {
-  grid-column: 1 / -1;
-}
-
-/* Warmup / Main Workout */
-.grid-header-main {
-  font-size: 1.05rem;
-  font-weight: 900;
-  color: var(--color-primary);
-  margin: 0.55rem 0 0.25rem;
+.row-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Column headers */
-.grid-header {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  color: var(--color-tertiary);
-  text-align: center;
-  margin: 0;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-
-.grid-header.align-left {
-  text-align: left;
-  padding-left: 0.65rem;
-}
-
-/* Divider */
-.divider {
-  height: 1px;
-  width: 100%;
-  background: var(--border-tertiary);
-  margin: 0.8rem 0 0.4rem;
-}
-
-/* =========================
-   ROWS
-   ========================= */
-.exercise-row {
-  display: contents;
-}
-
-.exercise-name {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-
-  padding: 0.55rem 0.65rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-tertiary);
-  background: color-mix(in srgb, var(--background-primary), transparent 86%);
-
+.row-name {
   font-weight: 700;
-  color: var(--color-primary);
-}
-
-.exercise-name p {
-  margin: 0;
-  color: var(--color-primary);
-}
-
-/* Stat pills */
-.stat-pill {
-  text-align: center;
-  background: color-mix(in srgb, var(--background-primary), transparent 86%);
-  border: 1px solid var(--border-tertiary);
-  padding: 0.35rem 0.5rem;
-  border-radius: 999px;
-  font-weight: 900;
-  margin: 0;
   font-size: 0.95rem;
-  color: var(--color-primary);
+  color: var(--p-color);
 }
 
-/* Weight input */
-.input-wrapper {
-  position: relative;
+.btn-info {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-tertiary);
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.btn-info:hover {
+  color: var(--accent);
+}
+
+.row-meta {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.meta-pill {
+  font-size: 0.75rem;
+  color: var(--s-color);
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+
+.check-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  opacity: 0.6;
+}
+
+/* --- STRENGTH SPECIFIC --- */
+.desktop-only {
+  display: none;
+}
+
+
+.strength-inputs {
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
-.weight-input {
-  width: 100%;
-  height: 38px;
-  padding: 0.55rem 2rem 0.55rem 0.6rem;
-  border: 1px solid var(--border-secondary);
-  border-radius: 12px;
-  font-weight: 800;
-  outline: none;
-  transition: border-color 140ms ease, box-shadow 140ms ease;
-
-  background: color-mix(in srgb, var(--background-primary), transparent 82%);
-  color: var(--color-primary);
+.stat-group {
   text-align: center;
+  min-width: 35px;
 }
 
-.weight-input:focus {
-  border-color: var(--border-highlight);
-  box-shadow: 0 0 0 3px var(--color-link-transparent);
+.stat-val {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--p-color);
+}
+
+.stat-lbl {
+  font-size: 0.6rem;
+  color: var(--s-color);
+  text-transform: uppercase;
+  display: block;
+}
+
+.input-container {
+  position: relative;
+  width: 90px;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 0.5rem 1.8rem 0.5rem 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  background: var(--bg-input);
+  transition: all 0.2s;
+}
+
+.input-container input:focus {
+  background: #ffffff;
+  border-color: var(--accent);
 }
 
 .unit {
   position: absolute;
-  right: 10px;
-  font-size: 0.8rem;
-  color: var(--color-tertiary);
-  pointer-events: none;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--s-color);
 }
 
-/* Help button */
-.help-btn {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border-radius: 10px;
-  border: 1px solid var(--border-tertiary);
-  background: color-mix(in srgb, var(--background-primary), transparent 86%);
-  color: var(--color-tertiary);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  box-shadow: none;
-  transition: transform 140ms ease, color 140ms ease, border-color 140ms ease;
-}
-
-.help-btn:hover {
-  transform: translateY(-1px);
-  color: var(--color-link);
-  border-color: var(--border-secondary);
-}
-
-/* =========================
-   ACTIONS (bottom buttons)
-   ========================= */
-.actions-card {
-  background: linear-gradient(180deg, var(--background-secondary), var(--background-muted));
-  border: 1px solid var(--border-primary);
-  border-radius: 16px;
-  box-shadow: var(--shadow-light);
-  padding: 1rem;
-
-  display: flex;
-  gap: 0.75rem;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.actions-card button {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  white-space: nowrap;
-}
-
-/* Botón principal */
-.btn-primary {
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-  color: var(--background-primary);
-}
-
-/* Botón secundario (no tan llamativo) */
-.btn-secondary {
-  background: color-mix(in srgb, var(--background-primary), transparent 88%);
-  color: var(--color-primary);
-  border: 1px solid var(--border-secondary);
-  box-shadow: none;
-}
-
-.btn-secondary:hover {
-  box-shadow: var(--shadow-light);
-}
-
-/* Mobile: apilar */
-@media (max-width: 640px) {
-  .actions-card {
-    flex-direction: column;
-    align-items: stretch;
+@media (min-width: 768px) {
+  .desktop-only {
+    display: flex;
   }
 
-  .actions-card button {
-    width: 100%;
+  .grid-headers {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem 0.5rem;
+    border-bottom: 2px solid #f1f5f9;
+    margin-bottom: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--s-color);
+    letter-spacing: 0.5px;
   }
-}
 
+  .headers-right {
+    display: grid;
+    grid-template-columns: 50px 50px 100px;
+    gap: 1rem;
+    text-align: center;
+  }
 
-/* =========================
-   MOBILE
-   ========================= */
-@media (max-width: 640px) {
-  .grid-header {
+  .strength-inputs {
+    display: grid !important;
+    grid-template-columns: 50px 50px 100px;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .mobile-only {
     display: none;
   }
+}
 
-  .exercises-container {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
-    padding: 0.95rem;
+@media (max-width: 767px) {
+  .strength-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
   }
 
-  .grid-header-main {
-    margin-top: 1rem;
-    font-size: 1.15rem;
+  .strength-inputs {
+    width: 100%;
+    justify-content: space-between;
+    background: #f8fafc;
+    padding: 0.6rem;
+    border-radius: 8px;
   }
 
-  .divider {
-    margin: 1.1rem 0 0.35rem;
-  }
-
-  .exercise-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.5fr;
-    grid-template-areas:
-      "name name name"
-      "sets reps input";
-    gap: 0.75rem;
-
-    padding: 0.95rem;
-    border-radius: 14px;
-    border: 1px solid var(--border-tertiary);
-    background: color-mix(in srgb, var(--background-primary), transparent 86%);
-    box-shadow: none;
-  }
-
-  .exercise-name {
-    grid-area: name;
-    padding: 0.65rem 0.7rem;
-  }
-
-  .sets-pill::after {
-    content: " sets";
-    font-size: 0.7em;
-    opacity: 0.65;
-    font-weight: 600;
-  }
-
-  .reps-pill::after {
-    content: " reps";
-    font-size: 0.7em;
-    opacity: 0.65;
-    font-weight: 600;
-  }
-
-  .stat-pill {
-    background: color-mix(in srgb, var(--background-primary), transparent 88%);
-    border: 1px solid var(--border-tertiary);
-  }
-
-  .input-wrapper {
-    grid-area: input;
-  }
-
-  .weight-input {
-    height: 44px;
-    font-size: 1rem;
+  .input-container input {
+    background: #ffffff;
   }
 }
 
-/* =========================
-   EXERCISE DESCRIPTION (PORTAL)
-   ========================= */
+/* --- METCON CONTENT --- */
+.metcon-content {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+}
 
-.excersise-description {
+.reps-big {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #c2410c;
+  min-width: 25px;
+}
+
+.note-box {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: #fff7ed;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #9a3412;
+  font-weight: 500;
+}
+
+
+.notes-area {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--bg-input);
+  font-family: inherit;
+  resize: vertical;
+}
+
+.notes-area:focus {
+  outline: none;
+  border-color: var(--color-tertiary);
+  background: #fff;
+}
+
+
+.actions-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.85rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  flex: 1;
+  transition: transform 0.2s;
+  border: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--p-color);
+  border: 1px solid var(--border);
+}
+
+
+.btn--primary {
+  position: relative;
+  overflow: hidden;
+  color: #ffffff;
+  background: var(--color-link, #2563eb);
+}
+
+.btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #94a3b8;
+}
+
+.btn-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.btn--primary:hover:not(:disabled) .btn-glow {
+  transform: translateX(100%);
+}
+
+
+.exercise-modal {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.excersise-description h4 {
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h4 {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 900;
-  letter-spacing: -0.2px;
-  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 850;
+}
+
+.btn-icon-close {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.modal-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.btn--full {
+  width: 100%;
+}
+
+
+
+.exercise-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-header h4 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
   text-transform: capitalize;
 }
 
-.excersise-description small {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-tertiary);
-  margin-bottom: 0.4rem;
-}
-
-.excersise-description p {
-  margin: 0;
-  line-height: 1.5;
-  color: var(--color-primary);
-  opacity: 0.92;
-}
-
-/* Botón Close */
-.excersise-description button {
-  margin-top: 1.5rem;
-  align-self: flex-end;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-
-  height: 42px;
-  padding: 0 1rem;
-
-  border-radius: 12px;
-  font-weight: 900;
-
-  border: 1px solid var(--border-secondary);
-  background: color-mix(in srgb, var(--background-primary), transparent 88%);
-  color: var(--color-primary);
-
+.btn-icon-close {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  color: #64748b;
+  display: grid;
+  place-items: center;
 }
 
-.excersise-description button:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-light);
-  border-color: var(--border-primary);
+.modal-body {
+  flex: 1;
 }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.modal-label {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #2563eb;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.modal-body p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #334155;
 }
 
 
+.btn-modal-action {
+  width: 100%;
+  background: #0f172a;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: auto;
+}
+
+.btn-modal-action:hover {
+  background: #1e293b;
+}
 </style>

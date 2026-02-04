@@ -8,9 +8,8 @@ const props = defineProps({
 </script>
 
 <template>
-  <Teleport to="#portal">
+  <Teleport to="body">
     <div class="portal-container">
-      <!-- Underlay: cierra -->
       <div
         class="portal-underlay"
         role="button"
@@ -21,7 +20,6 @@ const props = defineProps({
         @keydown.space.prevent="props.handleCloseModal()"
       ></div>
 
-      
       <div class="portal-content" role="dialog" aria-modal="true" @click.stop>
         <slot />
       </div>
@@ -29,61 +27,70 @@ const props = defineProps({
   </Teleport>
 </template>
 
-
 <style scoped>
-   .portal-container {
+.portal-container {
   position: fixed;
   inset: 0;
-  z-index: 1001;
-
+  z-index: 9999;
   display: grid;
   place-items: center;
-
-  padding: 1rem; 
+  padding: 1rem;
 }
 
 .portal-underlay {
   position: absolute;
   inset: 0;
-
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
 }
 
-
 .portal-content {
-  position: absolute;
-  z-index: 1000;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  z-index: 10000;
+  
+  width: 100%;
+  max-width: 500px; 
+  max-height: 85vh;
+  overflow-y: auto;
 
-  width: 600px;
-  max-width: 90vw;
-  max-height: 80vh;
-
-  overflow: auto;
-
-  padding: 2rem 1.25rem 1.25rem;
-
-  border-radius: var(--border-radius-large);
-  border: 1px solid var(--border-primary);
-
-  background: linear-gradient(180deg, var(--background-secondary), var(--background-muted));
-  box-shadow: var(--shadow-dark);
+  
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  
+
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
 .portal-content::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
+}
+.portal-content::-webkit-scrollbar-track {
+  background: transparent;
 }
 .portal-content::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--border-primary), transparent 45%);
-  border-radius: 999px;
+  background: #cbd5e1;
+  border-radius: 99px;
 }
-
+.portal-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 </style>

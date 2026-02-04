@@ -1,14 +1,12 @@
 <script setup>
-
 defineProps({
   handleChangeDisplay: Function
 })
 
-// Data
 const highlights = [
-  { title: "Strength + Skill", desc: "Weightlifting & calisthenics foundations.", icon: "💪" },
-  { title: "Simple Tracking", desc: "Log weights and movement quality, hassle-free.", icon: "📈" },
-  { title: "Progressive Plan", desc: "Clear structure to advance every single week.", icon: "🚀" },
+  { title: "Strength + Skill", desc: "Weightlifting & calisthenics foundations.", icon: "fa-solid fa-dumbbell" },
+  { title: "Simple Tracking", desc: "Log weights and movement quality, hassle-free.", icon: "fa-solid fa-chart-line" },
+  { title: "Progressive Plan", desc: "Clear structure to advance every single week.", icon: "fa-solid fa-rocket" },
 ]
 
 const stats = [
@@ -22,7 +20,7 @@ const stats = [
   <section id="welcome" class="welcome">
     <div class="welcome__container">
       <div class="bento-grid">
-        <!-- MAIN CARD -->
+
         <article class="bento-card main-card">
           <div class="badge-container">
             <span class="badge">WOD-ready program</span>
@@ -56,7 +54,6 @@ const stats = [
           </div>
         </article>
 
-        <!-- VISUAL CARD -->
         <article class="bento-card visual-card" aria-hidden="true">
           <div class="glow-bg"></div>
 
@@ -95,77 +92,35 @@ const stats = [
           </div>
         </article>
 
-        <!-- GOALS -->
         <article class="bento-card info-card">
           <h2 class="card-title">Program Goals</h2>
 
           <ul class="benefits-list">
             <li>
-              <svg
-                class="icon-check"
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
+              <i class="fa-solid fa-check icon-check"></i>
               <span>Follow a plan with proven structure.</span>
             </li>
 
             <li>
-              <svg
-                class="icon-check"
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
+              <i class="fa-solid fa-check icon-check"></i>
               <span>Feel athletic, strong, and healthy.</span>
             </li>
 
             <li>
-              <svg
-                class="icon-check"
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
+              <i class="fa-solid fa-check icon-check"></i>
               <span>Mix barbell work with gymnastics skills.</span>
             </li>
           </ul>
         </article>
 
-        <!-- HIGHLIGHTS -->
         <article class="bento-card info-card">
           <h2 class="card-title">What You'll Train</h2>
 
           <div class="highlights-grid">
             <div v-for="h in highlights" :key="h.title" class="highlight-item">
-              <div class="highlight-icon">{{ h.icon }}</div>
+              <div class="highlight-icon">
+                <i :class="h.icon"></i>
+              </div>
               <div>
                 <h3 class="highlight-title">{{ h.title }}</h3>
                 <p class="highlight-desc">{{ h.desc }}</p>
@@ -180,12 +135,10 @@ const stats = [
 
 <style scoped>
 .welcome {
-  /* Local aliases */
   --p-color: var(--color-primary);
   --s-color: var(--color-secondary);
   --accent: var(--color-link);
-
-  --bg-card: var(--background-secondary);
+  --bg-card: #ffffff;
   --border: var(--border-primary);
   --card-shadow: var(--shadow-light);
 
@@ -198,11 +151,10 @@ const stats = [
   margin: 0 auto;
 }
 
-/* --- BENTO GRID --- */
 .bento-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -228,22 +180,24 @@ const stats = [
   }
 }
 
-/* --- CARDS BASE --- */
 .bento-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--border-radius-large, 1rem);
+  border-radius: 1.25rem;
   padding: 2rem;
   position: relative;
   overflow: hidden;
   box-shadow: var(--card-shadow);
 }
 
-/* --- 1) MAIN CARD --- */
 .main-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.badge-container {
+  margin-bottom: 1rem;
 }
 
 .badge {
@@ -263,7 +217,7 @@ const stats = [
   line-height: 1.08;
   font-weight: 850;
   color: var(--p-color);
-  margin: 1.5rem 0 1rem;
+  margin: 0.5rem 0 1rem;
   letter-spacing: -0.02em;
 }
 
@@ -282,21 +236,21 @@ const stats = [
   max-width: 45ch;
 }
 
-/* Buttons */
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   margin-bottom: 2.5rem;
 }
 
 .btn {
   padding: 0.85rem 1.5rem;
-  border-radius: var(--border-radius-small, 0.75rem);
+  border-radius: 0.75rem;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s ease;
+  font-family: inherit;
 }
 
 .btn--primary {
@@ -304,12 +258,11 @@ const stats = [
   overflow: hidden;
   color: #ffffff;
   background: var(--accent);
-  border: 1px solid color-mix(in srgb, var(--accent) 65%, #000);
+  border: none;
 }
 
 .btn--primary:hover {
   transform: translateY(-1px);
-  opacity: 0.95;
 }
 
 .btn-glow {
@@ -328,18 +281,16 @@ const stats = [
   background: transparent;
   color: var(--p-color);
   border: 1px solid var(--border);
-  box-shadow: none;
 }
 
 .btn--ghost:hover {
-  opacity: 0.9;
+  background: var(--background-muted);
 }
 
-/* Stats */
 .stats-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 2.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--border);
 }
@@ -357,7 +308,6 @@ const stats = [
   font-weight: 600;
 }
 
-/* --- 2) VISUAL CARD --- */
 .visual-card {
   background: var(--background-tertiary);
   display: flex;
@@ -376,41 +326,31 @@ const stats = [
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.08); }
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.08);
+  }
 }
 
 .phone-mockup {
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 1.25rem;
-  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
   width: 100%;
   max-width: 320px;
-  box-shadow: var(--shadow-dark);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
   transform: rotateY(-5deg) rotateX(2deg);
   transition: transform 0.4s ease;
 }
 
 .visual-card:hover .phone-mockup {
   transform: rotateY(0) rotateX(0) translateY(-5px);
-}
-
-@media (prefers-color-scheme: dark) {
-  .phone-mockup {
-    background: rgba(15, 23, 42, 0.7);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-  .workout-row {
-    background: color-mix(in srgb, var(--background-primary) 70%, #0b1220) !important;
-    border-color: var(--border-primary) !important;
-  }
-  .row-left p {
-    color: var(--color-primary) !important;
-  }
 }
 
 .phone-header {
@@ -420,15 +360,32 @@ const stats = [
   margin-bottom: 1.5rem;
 }
 
-.dot { width: 10px; height: 10px; border-radius: 50%; }
-.red { background: var(--color-error, #ef4444); }
-.yellow { background: var(--color-warning, #f59e0b); }
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.red {
+  background: #ef4444;
+}
+
+.yellow {
+  background: #f59e0b;
+}
+
 .phone-title {
   margin-left: auto;
   font-size: 0.75rem;
   font-weight: 800;
-  color: var(--color-muted, #64748b);
+  color: var(--color-muted);
   text-transform: uppercase;
+}
+
+.phone-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .workout-row {
@@ -437,15 +394,14 @@ const stats = [
   align-items: center;
   background: #ffffff;
   padding: 0.75rem;
-  margin-bottom: 0.75rem;
   border-radius: 0.75rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
-  border: 1px solid var(--border-tertiary);
+  border: 1px solid var(--border);
 }
 
 .workout-row.active {
   border-color: var(--accent);
-  box-shadow: var(--shadow-light);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
 }
 
 .row-left p {
@@ -457,7 +413,7 @@ const stats = [
 }
 
 .sub-text {
-  color: var(--color-muted, #64748b);
+  color: var(--color-muted);
   font-weight: 600;
   font-size: 0.8rem;
 }
@@ -465,20 +421,31 @@ const stats = [
 .tag {
   font-size: 0.65rem;
   font-weight: 800;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: 6px;
   text-transform: uppercase;
 }
 
-.tag--green { background: #dcfce7; color: #166534; }
-.tag--blue  { background: #dbeafe; color: #1e40af; }
-.tag--orange { background: #ffedd5; color: #9a3412; }
+.tag--green {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tag--blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tag--orange {
+  background: #ffedd5;
+  color: #9a3412;
+}
 
 .check-circle {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--color-muted, #94a3b8);
+  border: 2px solid #cbd5e1;
   opacity: 0.5;
 }
 
@@ -500,11 +467,10 @@ const stats = [
   left: 5px;
 }
 
-/* --- 3 & 4) INFO CARDS --- */
 .card-title {
   font-size: 1.25rem;
   font-weight: 800;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   color: var(--p-color);
 }
 
@@ -519,21 +485,20 @@ const stats = [
 .benefits-list li {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   color: var(--s-color);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 
 .icon-check {
   color: var(--accent);
-  flex-shrink: 0;
+  font-size: 1.1rem;
 }
 
-/* Highlights */
 .highlights-grid {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .highlight-item {
@@ -544,18 +509,18 @@ const stats = [
 
 .highlight-icon {
   background: var(--background-muted);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 1.2rem;
   border: 1px solid var(--border);
   color: var(--p-color);
 }
 
 .highlight-title {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 800;
   margin: 0;
   color: var(--p-color);
@@ -563,13 +528,14 @@ const stats = [
 
 .highlight-desc {
   margin: 0.2rem 0 0 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--s-color);
   line-height: 1.45;
 }
 
 @media (min-width: 768px) {
-  .hero-title { font-size: 3rem; }
-  .bento-card { padding: 2.5rem; }
+  .hero-title {
+    font-size: 3rem;
+  }
 }
 </style>
