@@ -2,6 +2,8 @@
 import { ref, computed } from "vue";
 import Portal from "../Portal.vue";
 import { workoutProgram, exerciseDescriptions } from "../../utils";
+import Error from "../Error.vue";
+
 
 const props = defineProps({
   data: Object,
@@ -12,6 +14,7 @@ const props = defineProps({
 
 const workout = computed(() => workoutProgram?.[props.selectedWorkout] || null);
 const selectedExercise = ref(null);
+const error = ref('')
 
 const exerciseDescription = computed(() => {
   const key = selectedExercise.value;
@@ -30,10 +33,52 @@ function keyFor(sectionId, movementId) {
   return `${sectionId}__${movementId}`;
 }
 
-// Pequeña ayuda para formatear tipos como "FOR_TIME"
+
 function formatType(t) {
   return t ? t.replace(/_/g, " ") : "Workout";
 }
+
+function validateDataKg() {
+  error.value = ''
+
+  const workoutData = props.data[props.selectedWorkout]
+
+  for (const [key, value] of Object.entries(workoutData)) {
+    if (!key.startsWith('strength__')) continue
+
+    const v = String(value ?? '').trim().replace(',', '.')
+
+    if (v === '') {
+      error.value = 'Please fill in all weight fields'
+      clearError()
+      return
+    }
+
+    if (isNaN(Number(v))) {
+      error.value = 'You can only enter numbers in the weight fields'
+      props.data[props.selectedWorkout][key] = ''
+      clearError()
+      return
+    }
+
+    if (Number(v) < 0) {
+      error.value = 'You cannot enter negative weights'
+      props.data[props.selectedWorkout][key] = ''
+      clearError()
+      return
+    }
+  }
+
+  props.handleSaveWorkout()
+}
+
+
+function clearError() {
+  setTimeout(() => {
+    error.value = ''
+  }, 2000)
+}
+
 </script>
 
 <template>
@@ -171,20 +216,25 @@ function formatType(t) {
         <textarea class="notes-area" placeholder="How did it feel? Log RPE or modifications..."
           v-model="props.data[props.selectedWorkout].observaciones" rows="3"></textarea>
       </article>
-
     </div>
-
     <div class="actions-row">
+
       <button class="btn btn--ghost" @click="handleSaveWorkout">
         Save Progress
       </button>
 
-      <button class="btn btn--primary" :disabled="!isWorkoutCompleted" @click="handleSaveWorkout">
+      <button class="btn btn--primary" :disabled="!isWorkoutCompleted" @click="validateDataKg">
         Complete Session
         <span class="btn-glow"></span>
       </button>
     </div>
-
+    <div class="validation-slot">
+      <transition name="scale-fade">
+        <Error v-if="error">
+          {{ error }}
+        </Error>
+      </transition>
+    </div>
   </section>
 </template>
 

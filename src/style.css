@@ -15,7 +15,6 @@
 
   color-scheme: light dark;
 
-  /* --- PALETA DE COLORES --- */
   --background-primary: #ffffff;
   --background-secondary: #f8fafc;
   --background-tertiary: #eef2ff;
@@ -51,7 +50,7 @@
   --gradient-start: #2563eb;
   --gradient-end: #22c55e;
 
-  /* --- BORDES Y SOMBRAS --- */
+
   --border-primary: rgba(15, 23, 42, 0.1);
   --border-secondary: rgba(15, 23, 42, 0.14);
   --border-highlight: rgba(37, 99, 235, 0.55);
@@ -60,7 +59,7 @@
   --shadow-dark: 0 18px 40px rgba(2, 6, 23, 0.1);
   --shadow-light: 0 10px 24px rgba(2, 6, 23, 0.06);
 
-  /* --- ESPACIADO --- */
+
   --border-radius-small: 0.75rem;
   --border-radius-large: 1rem;
 }
@@ -112,7 +111,7 @@
   }
 }
 
-/* --- RESET BÁSICO --- */
+
 * {
   margin: 0;
   padding: 0;
@@ -126,7 +125,7 @@ html {
 body {
   background: var(--background-primary);
   background-image: var(--background-gradient);
-  background-attachment: fixed; /* Para que el fondo no se mueva al hacer scroll */
+  background-attachment: fixed;
   color: var(--color-primary);
   min-width: 320px;
   min-height: 100vh;
@@ -138,7 +137,7 @@ body {
   min-height: 100vh;
 }
 
-/* --- TEXTO --- */
+
 p {
   color: var(--color-secondary);
 }
@@ -152,7 +151,7 @@ a:hover {
   text-decoration: underline;
 }
 
-/* --- BOTONES (Base limpia) --- */
+
 button {
   font-family: inherit;
   cursor: pointer;
@@ -160,5 +159,32 @@ button {
   background: transparent;
   padding: 0;
 }
-/* Nota: Los estilos visuales de los botones (colores, sombras) 
-   ahora se manejan en las clases .btn dentro de los componentes .vue */
+
+
+   .scale-fade-enter-active {
+  transition: all 0.25s ease-out;
+}
+
+.scale-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.scale-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.scale-fade-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scale-fade-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scale-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
