@@ -3,7 +3,9 @@ import { workoutProgram } from '../utils';
 
 const props = defineProps({
   handleSelectedWorkout: Function,
-  firstIncompleteWorkoutIndex: Number
+  firstIncompleteWorkoutIndex: Number,
+  handleResetPlan: Function
+
 })
 
 function isLocked(index) {
@@ -41,6 +43,11 @@ function getTheme(title) {
 </script>
 
 <template>
+  <button @click="handleResetPlan" class="reset-button">
+  <i class="fa-solid fa-arrow-rotate-right"></i>
+  <span>Reset program</span>
+</button>
+
   <section id="grid">
     <button v-for="(workoutData, key) in workoutProgram" :key="key" :disabled="isLocked(Number(key))"
       @click="() => handleSelectedWorkout(Number(key))" class="workout-card" :class="[
@@ -254,4 +261,51 @@ function getTheme(title) {
   border-color: transparent;
   filter: grayscale(1);
 }
+
+
+.reset-button {
+  margin-bottom: 1.75rem;
+  align-self: flex-end;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  background: #dc2626;
+  color: #f9fafb;
+
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    opacity 140ms ease;
+}
+
+.reset-button i {
+  font-size: 0.9rem;
+}
+
+.reset-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+  opacity: 0.95;
+}
+
+.reset-button:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+}
+
+
 </style>

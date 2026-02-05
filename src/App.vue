@@ -92,6 +92,23 @@ function handleSaveWorkout() {
   selectedDisplay.value = 2;
   selectedWorkout.value = -1;
 }
+
+function handleResetPlan() {
+  selectedDisplay.value = 2
+  selectedWorkout.value = -1
+  data.value = JSON.parse(JSON.stringify(defaultData))
+  localStorage.removeItem("workouts")
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem("workouts");
+  if (!saved) return;
+  data.value = JSON.parse(saved);
+  selectedDisplay.value = 2;
+});
+
+
+
 </script>
 
 <template>
@@ -100,6 +117,7 @@ function handleSaveWorkout() {
     <Dashboard
       :firstIncompleteWorkoutIndex="firstIncompleteWorkoutIndex"
       :handleSelectedWorkout="handleSelectedWorkout"
+      :handleResetPlan="handleResetPlan"
       v-if="selectedDisplay == 2"
     />
     <Workout

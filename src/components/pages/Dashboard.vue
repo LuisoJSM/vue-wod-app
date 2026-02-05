@@ -1,22 +1,38 @@
 <script setup>
 import Grid from "../Grid.vue";
 import { gymHealthFacts } from "../../utils";
+import { computed } from "vue";
 
 const props = defineProps({
   handleSelectedWorkout: Function,
-  firstIncompleteWorkoutIndex: Number
+  firstIncompleteWorkoutIndex: Number,
+  handleResetPlan: Function
 })
 
 
 const randomNumber = Math.floor(Math.random() * gymHealthFacts.length);
 const todayFact = gymHealthFacts[randomNumber];
+
+
+
+const title = computed(() => {
+  if (props.firstIncompleteWorkoutIndex === -1) {
+    return "You have finished! Amazing work!";
+  }
+  if (props.firstIncompleteWorkoutIndex === 0) {
+    return "Welcome!";
+  }
+  return "Welcome back!";
+});
+
+
 </script>
 
 <template>
   <section id="dashboard">
     <div class="dashboard-card welcome-container">
       <div class="header-row">
-        <h2>Welcome back!</h2>
+        <h2>{{ title }}</h2>
         <i class="fa-solid fa-hand-sparkles icon-wave"></i>
       </div>
 
@@ -28,10 +44,13 @@ const todayFact = gymHealthFacts[randomNumber];
         <p class="tip-text">{{ todayFact }}</p>
       </div>
 
-      <button class="btn-start"
-        @click="() => handleSelectedWorkout(firstIncompleteWorkoutIndex < 0 ? 0 : firstIncompleteWorkoutIndex)">
-        Start Workout <i class="fa-solid fa-arrow-right"></i>
-      </button>
+      <button
+  class="btn-start"
+  @click="props.handleSelectedWorkout(props.firstIncompleteWorkoutIndex < 0 ? 0 : props.firstIncompleteWorkoutIndex)"
+>
+  Start Workout <i class="fa-solid fa-arrow-right"></i>
+</button>
+
     </div>
 
     <Grid v-bind="props" />
