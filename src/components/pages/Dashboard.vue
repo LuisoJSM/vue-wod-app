@@ -6,14 +6,14 @@ import { computed } from "vue";
 const props = defineProps({
   handleSelectedWorkout: Function,
   firstIncompleteWorkoutIndex: Number,
-  handleResetPlan: Function
-})
-
+  handleResetPlan: Function,
+  requestReset: Function,
+  closeResetModal: Function,
+  isResetModalOpen: Boolean,
+});
 
 const randomNumber = Math.floor(Math.random() * gymHealthFacts.length);
 const todayFact = gymHealthFacts[randomNumber];
-
-
 
 const title = computed(() => {
   if (props.firstIncompleteWorkoutIndex === -1) {
@@ -24,8 +24,6 @@ const title = computed(() => {
   }
   return "Welcome back!";
 });
-
-
 </script>
 
 <template>
@@ -45,15 +43,26 @@ const title = computed(() => {
       </div>
 
       <button
-  class="btn-start"
-  @click="props.handleSelectedWorkout(props.firstIncompleteWorkoutIndex < 0 ? 0 : props.firstIncompleteWorkoutIndex)"
->
-  Start Workout <i class="fa-solid fa-arrow-right"></i>
-</button>
-
+        class="btn-start"
+        @click="
+          props.handleSelectedWorkout(
+            props.firstIncompleteWorkoutIndex < 0
+              ? 0
+              : props.firstIncompleteWorkoutIndex,
+          )
+        "
+      >
+        Start Workout <i class="fa-solid fa-arrow-right"></i>
+      </button>
     </div>
 
-    <Grid v-bind="props" />
+    <Grid
+  :handleSelectedWorkout="props.handleSelectedWorkout"
+  :firstIncompleteWorkoutIndex="props.firstIncompleteWorkoutIndex"
+  :handleResetPlan="props.handleResetPlan"
+  :requestReset="props.requestReset"
+/>
+
   </section>
 </template>
 
@@ -68,7 +77,6 @@ const title = computed(() => {
   gap: 2rem;
   font-family: inherit;
 }
-
 
 .dashboard-card {
   background: #ffffff;
@@ -103,7 +111,6 @@ const title = computed(() => {
   font-size: 1.5rem;
 }
 
-
 .tip-box {
   background: #fffbeb;
   border: 1px solid #fcd34d;
@@ -131,7 +138,6 @@ const title = computed(() => {
   font-weight: 500;
 }
 
-
 .btn-start {
   align-self: flex-start;
   background: #0f172a;
@@ -145,7 +151,9 @@ const title = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .btn-start:hover {
@@ -153,7 +161,6 @@ const title = computed(() => {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   background: #1e293b;
 }
-
 
 @media (max-width: 640px) {
   .dashboard-card {

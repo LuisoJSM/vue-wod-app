@@ -5,19 +5,17 @@ import Dashboard from "./components/pages/Dashboard.vue";
 import Workout from "./components/pages/Workout.vue";
 import { ref, computed, onMounted } from "vue";
 import { workoutProgram } from "./utils";
-
+import ResetConfirmModal from "./components/ResetConfirmModal.vue";
 
 function keyFor(sectionId, movementId) {
   return `${sectionId}__${movementId}`;
 }
-
 
 const defaultData = {};
 for (const workoutIdx in workoutProgram) {
   const workoutData = workoutProgram[workoutIdx];
   defaultData[workoutIdx] = {};
 
-  
   if (Array.isArray(workoutData.strength)) {
     for (const m of workoutData.strength) {
       defaultData[workoutIdx][keyFor("strength", m.id)] = "";
@@ -27,26 +25,20 @@ for (const workoutIdx in workoutProgram) {
   defaultData[workoutIdx].observaciones = "";
 }
 
-
-
-
 const saved = localStorage.getItem("workouts");
 const initialData = saved ? JSON.parse(saved) : defaultData;
-
 
 const data = ref(initialData);
 const selectedDisplay = ref(1);
 const selectedWorkout = ref(-1);
-
-
+const isResetModalOpen = ref(false);
 
 const isWorkoutCompleted = computed(() => {
-
   const currWorkout = data.value?.[selectedWorkout.value];
   if (!currWorkout) return false;
 
   const strengthEntries = Object.entries(currWorkout).filter(([k]) =>
-    k.startsWith("strength__")
+    k.startsWith("strength__"),
   );
 
   if (strengthEntries.length === 0) return true;
@@ -58,11 +50,10 @@ const firstIncompleteWorkoutIndex = computed(() => {
   const allWorkouts = data.value;
   if (!allWorkouts) return -1;
 
-  
   for (const index in allWorkouts) {
     const workout = allWorkouts[index];
     const strengthEntries = Object.entries(workout).filter(([k]) =>
-      k.startsWith("strength__")
+      k.startsWith("strength__"),
     );
 
     const isComplete =
@@ -75,8 +66,6 @@ const firstIncompleteWorkoutIndex = computed(() => {
 
   return -1;
 });
-
-
 
 function handleChangeDisplay(idx) {
   selectedDisplay.value = idx;
@@ -94,10 +83,21 @@ function handleSaveWorkout() {
 }
 
 function handleResetPlan() {
-  selectedDisplay.value = 2
-  selectedWorkout.value = -1
-  data.value = JSON.parse(JSON.stringify(defaultData))
-  localStorage.removeItem("workouts")
+  selectedDisplay.value = 2;
+  selectedWorkout.value = -1;
+  data.value = JSON.parse(JSON.stringify(defaultData));
+  localStorage.removeItem("workouts");
+}
+
+function requestReset() {
+  isResetModalOpen.value = true;
+}
+
+function openResetModal() {
+  isResetModalOpen.value = true;
+}
+function closeResetModal() {
+  isResetModalOpen.value = false;
 }
 
 onMounted(() => {
@@ -106,18 +106,28 @@ onMounted(() => {
   data.value = JSON.parse(saved);
   selectedDisplay.value = 2;
 });
-
-
-
 </script>
 
 <template>
   <Layout>
-    <Welcome :handleChangeDisplay="handleChangeDisplay" v-if="selectedDisplay == 1" />
+    <ResetConfirmModal
+  v-if="isResetModalOpen"
+  :onCancel="closeResetModal"
+  :onConfirm="() => { handleResetPlan(); closeResetModal(); }"
+/>
+
+
+    <Welcome
+      :handleChangeDisplay="handleChangeDisplay"
+      v-if="selectedDisplay == 1"
+    />
     <Dashboard
       :firstIncompleteWorkoutIndex="firstIncompleteWorkoutIndex"
       :handleSelectedWorkout="handleSelectedWorkout"
       :handleResetPlan="handleResetPlan"
+      :requestReset="requestReset"
+      :closeResetModal="closeResetModal"
+      :isResetModalOpen="isResetModalOpen"
       v-if="selectedDisplay == 2"
     />
     <Workout

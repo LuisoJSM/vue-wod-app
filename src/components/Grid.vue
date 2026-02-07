@@ -1,11 +1,11 @@
 <script setup>
-import { workoutProgram } from '../utils';
+import { workoutProgram } from "../utils";
 
 const props = defineProps({
   handleSelectedWorkout: Function,
   firstIncompleteWorkoutIndex: Number,
-  handleResetPlan: Function
-
+  handleResetPlan: Function,
+  requestReset: Function,
 })
 
 function isLocked(index) {
@@ -18,45 +18,70 @@ function isCompleted(index) {
   return index < props.firstIncompleteWorkoutIndex;
 }
 
-
 function getTheme(title) {
   const t = title.toLowerCase();
 
-
-  if (t.includes('leg') || t.includes('squat') || t.includes('base') || t.includes('hinge') || t.includes('posterior')) {
-    return { icon: 'fa-drumstick-bite', class: 'theme-leg' };
+  if (
+    t.includes("leg") ||
+    t.includes("squat") ||
+    t.includes("base") ||
+    t.includes("hinge") ||
+    t.includes("posterior")
+  ) {
+    return { icon: "fa-drumstick-bite", class: "theme-leg" };
   }
 
-  if (t.includes('press') || t.includes('push') || t.includes('bench') || t.includes('overhead') || t.includes('jerk')) {
-    return { icon: 'fa-dumbbell', class: 'theme-push' };
+  if (
+    t.includes("press") ||
+    t.includes("push") ||
+    t.includes("bench") ||
+    t.includes("overhead") ||
+    t.includes("jerk")
+  ) {
+    return { icon: "fa-dumbbell", class: "theme-push" };
   }
 
-  if (t.includes('pull') || t.includes('row') || t.includes('back')) {
-    return { icon: 'fa-weight-hanging', class: 'theme-pull' };
+  if (t.includes("pull") || t.includes("row") || t.includes("back")) {
+    return { icon: "fa-weight-hanging", class: "theme-pull" };
   }
 
-  if (t.includes('clean') || t.includes('snatch') || t.includes('power') || t.includes('fast')) {
-    return { icon: 'fa-bolt', class: 'theme-power' };
+  if (
+    t.includes("clean") ||
+    t.includes("snatch") ||
+    t.includes("power") ||
+    t.includes("fast")
+  ) {
+    return { icon: "fa-bolt", class: "theme-power" };
   }
-  return { icon: 'fa-fire', class: 'theme-fire' };
+  return { icon: "fa-fire", class: "theme-fire" };
 }
 </script>
 
 <template>
-  <button @click="handleResetPlan" class="reset-button">
-  <i class="fa-solid fa-arrow-rotate-right"></i>
-  <span>Reset program</span>
-</button>
+ <button
+    v-if="firstIncompleteWorkoutIndex > 0 || firstIncompleteWorkoutIndex === -1"
+    @click="props.requestReset && props.requestReset()"
+    class="reset-button"
+  >
+    <i class="fa-solid fa-arrow-rotate-right"></i>
+    <span>Reset program</span>
+  </button>
 
   <section id="grid">
-    <button v-for="(workoutData, key) in workoutProgram" :key="key" :disabled="isLocked(Number(key))"
-      @click="() => handleSelectedWorkout(Number(key))" class="workout-card" :class="[
+    <button
+      v-for="(workoutData, key) in workoutProgram"
+      :key="key"
+      :disabled="isLocked(Number(key))"
+      @click="() => handleSelectedWorkout(Number(key))"
+      class="workout-card"
+      :class="[
         getTheme(workoutData.title).class,
         {
           'card-completed': isCompleted(Number(key)),
-          'card-current': Number(key) === firstIncompleteWorkoutIndex
-        }
-      ]">
+          'card-current': Number(key) === firstIncompleteWorkoutIndex,
+        },
+      ]"
+    >
       <div class="card-header">
         <span class="day-label">Day {{ Number(key) + 1 }}</span>
 
@@ -120,7 +145,6 @@ function getTheme(title) {
   box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.1);
 }
 
-
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -148,7 +172,6 @@ function getTheme(title) {
   letter-spacing: -0.5px;
 }
 
-
 .icon-wrapper {
   display: flex;
   align-items: center;
@@ -164,10 +187,6 @@ function getTheme(title) {
   transform: scale(1.1) rotate(5deg);
 }
 
-
-
-
-
 .theme-leg .icon-wrapper {
   background: #ccfbf1;
   color: #0d9488;
@@ -176,7 +195,6 @@ function getTheme(title) {
 .theme-leg:not(:disabled):hover {
   border-color: #0d9488;
 }
-
 
 .theme-push .icon-wrapper {
   background: #dbeafe;
@@ -187,7 +205,6 @@ function getTheme(title) {
   border-color: #2563eb;
 }
 
-
 .theme-pull .icon-wrapper {
   background: #fef3c7;
   color: #d97706;
@@ -196,7 +213,6 @@ function getTheme(title) {
 .theme-pull:not(:disabled):hover {
   border-color: #d97706;
 }
-
 
 .theme-power .icon-wrapper {
   background: #f3e8ff;
@@ -207,7 +223,6 @@ function getTheme(title) {
   border-color: #9333ea;
 }
 
-
 .theme-fire .icon-wrapper {
   background: #fee2e2;
   color: #dc2626;
@@ -216,8 +231,6 @@ function getTheme(title) {
 .theme-fire:not(:disabled):hover {
   border-color: #dc2626;
 }
-
-
 
 .card-completed {
   background: linear-gradient(145deg, #ecfdf5, #d1fae5) !important;
@@ -246,13 +259,11 @@ function getTheme(title) {
   opacity: 0.3;
 }
 
-
 .card-current {
   background: white;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
   border-color: #3b82f6 !important;
 }
-
 
 .workout-card:disabled {
   cursor: not-allowed;
@@ -261,7 +272,6 @@ function getTheme(title) {
   border-color: transparent;
   filter: grayscale(1);
 }
-
 
 .reset-button {
   margin-bottom: 1.75rem;
@@ -272,7 +282,7 @@ function getTheme(title) {
   gap: 0.55rem;
 
   padding: 0.6rem 1.2rem;
-  border-radius: 999px;
+  border-radius: 10px;
 
   font-size: 0.8rem;
   font-weight: 900;
@@ -306,6 +316,4 @@ function getTheme(title) {
   transform: translateY(0);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
 }
-
-
 </style>
