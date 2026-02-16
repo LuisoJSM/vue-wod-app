@@ -2,6 +2,7 @@
 import Grid from "../Grid.vue";
 import { gymHealthFacts } from "../../utils";
 import { computed } from "vue";
+import SportIcons from "../SportLegend.vue";
 
 const props = defineProps({
   handleSelectedWorkout: Function,
@@ -55,14 +56,15 @@ const title = computed(() => {
         Start Workout <i class="fa-solid fa-arrow-right"></i>
       </button>
     </div>
+    
+    <SportIcons />
 
     <Grid
-  :handleSelectedWorkout="props.handleSelectedWorkout"
-  :firstIncompleteWorkoutIndex="props.firstIncompleteWorkoutIndex"
-  :handleResetPlan="props.handleResetPlan"
-  :requestReset="props.requestReset"
-/>
-
+      :handleSelectedWorkout="props.handleSelectedWorkout"
+      :firstIncompleteWorkoutIndex="props.firstIncompleteWorkoutIndex"
+      :handleResetPlan="props.handleResetPlan"
+      :requestReset="props.requestReset"
+    />
   </section>
 </template>
 

@@ -1,6 +1,7 @@
 <script setup>
 import { workoutProgram } from "../utils";
 
+
 const props = defineProps({
   handleSelectedWorkout: Function,
   firstIncompleteWorkoutIndex: Number,
