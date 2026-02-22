@@ -26,7 +26,7 @@ for (const workoutIdx in workoutProgram) {
 }
 
 const saved = localStorage.getItem("workouts");
-const initialData = saved ? JSON.parse(saved) : defaultData;
+const initialData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultData));
 
 const data = ref(initialData);
 const selectedDisplay = ref(1);
@@ -83,12 +83,12 @@ function handleSaveWorkout() {
 }
 
 function handleResetPlan() {
-  selectedDisplay.value = 2;
-  selectedWorkout.value = -1;
-  data.value = JSON.parse(JSON.stringify(defaultData));
   localStorage.removeItem("workouts");
+  data.value = JSON.parse(JSON.stringify(defaultData));
+  selectedWorkout.value = -1;
+  selectedDisplay.value = 2;
+  isResetModalOpen.value = false;
 }
-
 function requestReset() {
   isResetModalOpen.value = true;
 }
@@ -113,7 +113,7 @@ onMounted(() => {
     <ResetConfirmModal
   v-if="isResetModalOpen"
   :onCancel="closeResetModal"
-  :onConfirm="() => { handleResetPlan(); closeResetModal(); }"
+  :onConfirm="handleResetPlan"
 />
 
 
